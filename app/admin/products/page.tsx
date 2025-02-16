@@ -2,35 +2,28 @@ import ProductTable from "@/components/products/ProductsTable";
 import Heading from "@/components/ui/Heading";
 import { prisma } from "@/src/lib/prisma";
 
-async function getProducts(page: number, pageSize: number) {
-  const skip = (page -1) * pageSize
+
+async function getProducts() {
   const products = await prisma.product.findMany({
-    take: pageSize,
-    skip,
+    take: 10,
     include: {
-      category: true
-    }
-  })
-  return products
+      category: true,
+    },
+  });
+
+  return products;
 }
 
-export type ProductsWithCategory = Awaited<ReturnType<typeof getProducts>>
+export type ProductsWithCategory = Awaited<ReturnType<typeof getProducts>>;
 
-export default async function ProductsPage({searchParams} : { searchParams: {page: string}}) {
+export default async function ProductsPage() {
+  const products = await getProducts();
 
-    const page = +searchParams.page || 1
-    const pageSize = 10
+  return (
+    <>
+      <Heading>Administrar productos</Heading>
 
-    const products = await getProducts(page, pageSize)
-    console.log(products)
-
-    return (
-      <>
-        <Heading>Administrar productos</Heading>
-
-        <ProductTable
-          products={products}
-        />
-      </>
-    )
-  }
+      <ProductTable products={products} />
+    </>
+  );
+}
